@@ -12,13 +12,9 @@ import (
 	"time"
 )
 
-var (
-	ErrUnexpectedTokens = errors.New("an unexpect token was received while reading response")
-)
+var ErrUnexpectedTokens = errors.New("an unexpect token was received while reading response")
 
-var (
-	bulkEOL = []byte("\r\n")
-)
+var bulkEOL = []byte("\r\n")
 
 const (
 	netcatIPTokensLength  = 7
@@ -108,12 +104,13 @@ func (c *BulkClient) LookupIPs(ips ...net.IP) ([]Response, error) {
 			strings.TrimSpace(string(tokens[0])),
 			" ",
 		)
-		asn, err := strconv.Atoi(asns[0])
-		if err != nil {
-			return resp, fmt.Errorf("parse %v: %w", asns[0], err)
+		if asns[0] != "NA" {
+			asn, err := strconv.Atoi(asns[0])
+			if err != nil {
+				return resp, fmt.Errorf("parse %v: %w", asns[0], err)
+			}
+			re.ASN = ASN(asn)
 		}
-
-		re.ASN = ASN(asn)
 
 		// Read IP
 		re.IP = net.ParseIP(string(tokens[1]))
